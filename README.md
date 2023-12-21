@@ -1,20 +1,20 @@
-# AWS CDK v2を使って、SQSからAmazon Eventbridge Pipesを使ってECS Taskを起動するサンプル
+# Sample of launching an ECS Task from SQS using Amazon Eventbridge Pipes with AWS CDK v2
 
-作成されるのは、以下のような構成です。
+The following configuration will be created
 
 ![architecture](https://docs.google.com/drawings/d/e/2PACX-1vRiUTF8v1zQd3lpAjamQPQCRm1RHoDQuMCJsQ3BuATWLwyKbLBcZUHZtzM1X_XR0cXDDYty-rddGtMz/pub?w=1229&h=530)
 
-Pipesはフィルター、強化等は設定していませんが、2023年11月に発表されたログ記録機能を追加しています。
-[Amazon EventBridge Pipes、新しいログ記録機能を追加してオブザーバビリティを向上](https://aws.amazon.com/jp/about-aws/whats-new/2023/11/amazon-eventbridge-logging-improved-observability/)
+Pipes is not set up for filters, enhancements, etc., but has added a logging feature that was announced in November 2023.
+[Amazon EventBridge Pipes adds new logging functionality for improved observability](https://aws.amazon.com/about-aws/whats-new/2023/11/amazon-eventbridge-logging-improved-observability/)
 
-ECS Taskが起動するVPCは新規作成ではなく、既存のVPCを利用するようにしています。
-RDSへのアクセスとかないので、PublicなSubnetで起動しています。
+The VPC that ECS Task is launched from is not a newly created one, but an existing one.
+In this case, there is no access to RDS, so it is started on a Public Subnet.
 
 # Requirements
 AWS CDK v2(erably the latest version)
 
 # Verified Environment
-AWS Cloud 9
+AWS Cloud9
 
 # Setup
 
@@ -25,14 +25,15 @@ npm install
 ```
 
 ## Update file
-`lib/cdk-eventbridge-pipes-ecs-tasks-stack.ts` の以下を修正する。
-- リソース名称
+Modify the following in `lib/cdk-eventbridge-pipes-ecs-tasks-stack.ts`.
+- Resource Name
 `"<set Your Resource Name>"`
 
-- ECS Taskが起動するVPCのID ※すでにDeployしようとしているリージョンに存在しているVPCのIDを指定すること。
+- ID of the VPC where ECS Task will be launched *Specify the ID of the VPC that exists in the region where you are trying to Deploy.
 `"<Set Existing VPCs>"`
 
 # Deploy
+※If you are running AWS CDK for the first time, do `cdk bootstrap` first.
 
 ```
 cdk deploy
@@ -46,26 +47,28 @@ cdk destroy
 
 # どう動く？
 
-以下のコマンドを実行すると、SQSにメッセージを送信すると、受信をトリガーにEvenbridge Pipesが実行されて、ECS Taskが起動します。
-ECS Taskでは、message.jsonの中身の出力と、S3バケット一覧が出力されます。
-(動作を変えたい場合は、app/app.pyを書き換えたのち、再度デプロイしてください。)
+When the following command is executed, sending a message to SQS will trigger Evenbridge Pipes to run on receipt and launch the ECS Task.
+The ECS Task will output the contents of test/message.json and the S3 bucket list.
 
 ```
 aws sqs send-message --queue-url "[Set CdkEventbridgePipesEcsTasksStack.TriggerSQSQueueUrl]" --message-body "file://test/message.json"
 ```
-[Set CdkEventbridgePipesEcsTasksStack.TriggerSQSQueueUrl] の部分をデプロイ時に出力される 「CdkEventbridgePipesEcsTasksStack.TriggerSQSQueueUrl」の値で書き換えること。
 
-Eventbridge Pipesの実行ログとECS Taskの実行ログは
-それぞれ、
-`/aws/ecs/<指定したresourceName>`
-`/aws/pipes/<指定したresourceName>`
-に出力されます。
+※Rewrite [Set CdkEventbridgePipesEcsTasksStack.TriggerSQSQueueUrl] with the value of "CdkEventbridgePipesEcsTasksStack.TriggerSQSQSQueueUrl" output at deploy time. TriggerSQSQSueueUrl" output during deployment.
+
+The execution logs of Eventbridge Pipes and ECS Task are
+respectively,
+`/aws/ecs/<specified resourceName>` and
+`/aws/pipes/<specified resourceName>`
+respectively.
 
 # Special thanks!!!
-- SQSからCloudWatch Logsに記録するAmazon EventBridge Pipesを構築するAWS CDK スタック 
-https://zenn.dev/ma2shita/articles/8a138d53e4ef9a
-- ECSとECRのコンテナ構成をCDKで実装してみた
+- AWS CDK stack for building Amazon EventBridge Pipes (SQS to CloudWatch Logs)
+https://dev.to/aws-heroes/aws-cdkv2-stack-for-building-amazon-eventbridge-pipes-sqs-to-cloudwatch-logs-52n9
+- ECSとECRのコンテナ構成をCDKで実装してみた(Japanese)
 https://dev.classmethod.jp/articles/cdk-ecs-ecr/
+
+...AND DeepL(https://www.deepl.com/ja/translator)
 
 # Anchor
 Kenichiro Wada(X: Keni_W)

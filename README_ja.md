@@ -14,7 +14,7 @@ RDSへのアクセスとかないので、PublicなSubnetで起動していま�
 AWS CDK v2(erably the latest version)
 
 # Verified Environment
-AWS Cloud 9
+AWS Cloud9
 
 # Setup
 
@@ -26,13 +26,14 @@ npm install
 
 ## Update file
 `lib/cdk-eventbridge-pipes-ecs-tasks-stack.ts` の以下を修正する。
-- リソース名称
+- リソース名
 `"<set Your Resource Name>"`
 
-- ECS Taskが起動するVPCのID ※すでにDeployしようとしているリージョンに存在しているVPCのIDを指定すること。
+- ECS Taskが起動するVPCのID ※Deployしようとしているリージョンに存在しているVPCのIDを指定すること。
 `"<Set Existing VPCs>"`
 
 # Deploy
+※初めて AWS CDKを実行する場合は、先に`cdk bootstrap` を行うこと
 
 ```
 cdk deploy
@@ -44,16 +45,16 @@ cdk deploy
 cdk destroy
 ```
 
-# どう動く？
+# How does it work?
 
 以下のコマンドを実行すると、SQSにメッセージを送信すると、受信をトリガーにEvenbridge Pipesが実行されて、ECS Taskが起動します。
-ECS Taskでは、message.jsonの中身の出力と、S3バケット一覧が出力されます。
-(動作を変えたい場合は、app/app.pyを書き換えたのち、再度デプロイしてください。)
+ECS Taskでは、test/message.jsonの中身の出力と、S3バケット一覧が出力されます。
 
 ```
-aws sqs send-message --queue-url "[Set CdkEventbridgePipesEcsTasksStack.TriggerSQSQueueUrl]" --message-body "file://test/message.json"
+aws sqs send-message --queue-url <Set CdkEventbridgePipesEcsTasksStack.TriggerSQSQueueUrl> --message-body "file://test/message.json"
 ```
-[Set CdkEventbridgePipesEcsTasksStack.TriggerSQSQueueUrl] の部分をデプロイ時に出力される 「CdkEventbridgePipesEcsTasksStack.TriggerSQSQueueUrl」の値で書き換えること。
+
+※<Set CdkEventbridgePipesEcsTasksStack.TriggerSQSQueueUrl> の部分をデプロイ時に出力される 「CdkEventbridgePipesEcsTasksStack.TriggerSQSQueueUrl」の値で書き換えること。
 
 Eventbridge Pipesの実行ログとECS Taskの実行ログは
 それぞれ、
