@@ -45,7 +45,7 @@ cdk deploy
 cdk destroy
 ```
 
-# どう動く？
+# How does it work?
 
 When the following command is executed, sending a message to SQS will trigger Evenbridge Pipes to run on receipt and launch the ECS Task.
 The ECS Task will output the contents of test/message.json and the S3 bucket list.

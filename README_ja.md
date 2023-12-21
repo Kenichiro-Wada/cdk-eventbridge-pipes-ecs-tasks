@@ -45,7 +45,7 @@ cdk deploy
 cdk destroy
 ```
 
-# How does it work?
+# どう動く？
 
 以下のコマンドを実行すると、SQSにメッセージを送信すると、受信をトリガーにEvenbridge Pipesが実行されて、ECS Taskが起動します。
 ECS Taskでは、test/message.jsonの中身の出力と、S3バケット一覧が出力されます。
